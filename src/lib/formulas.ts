@@ -214,17 +214,23 @@ export function getFieldConstraints(field: keyof typeof VALIDATION_RULES) {
 /**
  * Validate a single field value
  */
-export function validateField(field: keyof typeof VALIDATION_RULES, value: number): string | null {
+export function validateField(field: keyof typeof VALIDATION_RULES, value: string | number): { valid: boolean; message: string } {
   const rules = VALIDATION_RULES[field]
-  if (!rules || typeof rules === 'string') return null
+  if (!rules) return { valid: true, message: '' }
   
-  if (value < rules.min) {
-    return `${field} must be at least ${rules.min} ${rules.unit}`
+  const numValue = typeof value === 'string' ? parseFloat(value) : value
+  
+  if (isNaN(numValue)) {
+    return { valid: false, message: `${field} must be a valid number` }
   }
   
-  if (value > rules.max) {
-    return `${field} cannot exceed ${rules.max} ${rules.unit}`
+  if (numValue < rules.min) {
+    return { valid: false, message: `${field} must be at least ${rules.min} ${rules.unit}` }
   }
   
-  return null
+  if (numValue > rules.max) {
+    return { valid: false, message: `${field} cannot exceed ${rules.max} ${rules.unit}` }
+  }
+  
+  return { valid: true, message: '' }
 }

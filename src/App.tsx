@@ -18,6 +18,8 @@ import {
 } from './lib/roi'
 import { validateInputs } from './lib/schema'
 import TestRunner from './components/TestRunner'
+import { MethodologyModal } from './components/MethodologyModal'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 function App() {
   const [inputs, setInputs] = useState<ROICalculationInputs>(DEFAULT_INPUTS)
@@ -122,129 +124,133 @@ Best regards`)
   }
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b bg-card">
-          <div className="container mx-auto px-4 py-6">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-foreground">ROI Calculator</h1>
-              <p className="text-muted-foreground">Calculate the return on investment for DSE software implementation</p>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-6">
-          {/* Input Form - Now at the top */}
-          <div className="mb-8">
-            <InputForm 
-              inputs={inputs}
-              onInputChange={handleInputChange}
-              validationErrors={validationErrors}
-            />
-          </div>
-
-          {/* Results Panel - Below the form */}
-          <div className="mb-8">
-            {scenarios ? (
-              <KPIDisplay 
-                scenarios={scenarios}
-                activeScenario={activeScenario}
-                onScenarioChange={setActiveScenario}
-                inputs={inputs}
-              />
-            ) : (
-              <div className="text-center p-8 bg-muted/20 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2">ROI Calculation</h2>
-                <p className="text-muted-foreground">
-                  {validationErrors.length > 0 
-                    ? `Please fix ${validationErrors.length} validation error(s) to see results`
-                    : 'Calculating ROI...'
-                  }
-                </p>
-                {validationErrors.length > 0 && (
-                  <div className="mt-4 text-sm text-destructive">
-                    {validationErrors.map((error, index) => (
-                      <div key={index}>• {error}</div>
-                    ))}
-                  </div>
-                )}
+    <ErrorBoundary>
+      <TooltipProvider>
+        <div className="min-h-screen bg-background">
+          {/* Header */}
+          <header className="border-b bg-card">
+            <div className="container mx-auto px-4 py-6">
+              <div className="text-center">
+                <h1 className="text-3xl font-bold text-foreground">ROI Calculator</h1>
+                <p className="text-muted-foreground">Calculate the return on investment for DSE software implementation</p>
               </div>
-            )}
-          </div>
+            </div>
+          </header>
 
-          {/* Hidden Advanced Features - Only show when toggled */}
-          <div className="text-center mb-6">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium mr-4"
-            >
-              {showAdvanced ? 'Hide' : 'Show'} Advanced Features
-            </button>
-            
-            <button
-              onClick={() => setShowTestRunner(!showTestRunner)}
-              className="px-6 py-3 bg-orange-200 text-orange-700 rounded-lg hover:bg-orange-300 transition-colors font-medium mr-4"
-            >
-              {showTestRunner ? 'Hide' : 'Show'} Test Suite
-            </button>
-
-            <button
-              onClick={() => setShowSources(true)}
-              className="px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-medium"
-            >
-              View Sources
-            </button>
-          </div>
-
-          {/* Advanced Features - Hidden by default */}
-          {showAdvanced && scenarios && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-6"
-            >
-              {/* Sensitivity Analysis */}
-              <SensitivityChart sensitivityData={sensitivityData} />
-              
-              {/* Advanced Parameters */}
-              <AdvancedParameters 
+          {/* Main Content */}
+          <main className="container mx-auto px-4 py-6">
+            {/* Input Form - Now at the top */}
+            <div className="mb-8">
+              <InputForm 
                 inputs={inputs}
                 onInputChange={handleInputChange}
-                onResetToDefaults={resetToDefaults}
+                validationErrors={validationErrors}
               />
+            </div>
+
+            {/* Results Panel - Below the form */}
+            <div className="mb-8">
+              {scenarios ? (
+                <KPIDisplay 
+                  scenarios={scenarios}
+                  activeScenario={activeScenario}
+                  onScenarioChange={setActiveScenario}
+                  inputs={inputs}
+                />
+              ) : (
+                <div className="text-center p-8 bg-muted/20 rounded-lg">
+                  <h2 className="text-xl font-semibold mb-2">ROI Calculation</h2>
+                  <p className="text-muted-foreground">
+                    {validationErrors.length > 0 
+                      ? `Please fix ${validationErrors.length} validation error(s) to see results`
+                      : 'Calculating ROI...'
+                    }
+                  </p>
+                  {validationErrors.length > 0 && (
+                    <div className="mt-4 text-sm text-destructive">
+                      {validationErrors.map((error, index) => (
+                        <div key={index}>• {error}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Hidden Advanced Features - Only show when toggled */}
+            <div className="text-center mb-6">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium mr-4"
+              >
+                {showAdvanced ? 'Hide' : 'Show'} Advanced Features
+              </button>
               
-              {/* PDF Export */}
-              <PDFExport 
-                inputs={inputs}
-                scenarios={scenarios}
-                onCopySummary={copySummary}
-                onEmailBreakdown={emailBreakdown}
-              />
-            </motion.div>
-          )}
+              <button
+                onClick={() => setShowTestRunner(!showTestRunner)}
+                className="px-6 py-3 bg-orange-200 text-orange-700 rounded-lg hover:bg-orange-300 transition-colors font-medium mr-4"
+              >
+                {showTestRunner ? 'Hide' : 'Show'} Test Suite
+              </button>
 
-          {/* Test Runner - Hidden by default */}
-          {showTestRunner && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <TestRunner />
-            </motion.div>
-          )}
-        </main>
+              <button
+                onClick={() => setShowSources(true)}
+                className="px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-medium mr-4"
+              >
+                View Sources
+              </button>
 
-        {/* Compliance Banner */}
-        <ComplianceBanner />
+              <MethodologyModal />
+            </div>
 
-        {/* Sources Modal */}
-        <SourcesModal open={showSources} onOpenChange={setShowSources} />
-      </div>
-    </TooltipProvider>
+            {/* Advanced Features - Hidden by default */}
+            {showAdvanced && scenarios && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-6"
+              >
+                {/* Sensitivity Analysis */}
+                <SensitivityChart sensitivityData={sensitivityData} />
+                
+                {/* Advanced Parameters */}
+                <AdvancedParameters 
+                  inputs={inputs}
+                  onInputChange={handleInputChange}
+                  onResetToDefaults={resetToDefaults}
+                />
+                
+                {/* PDF Export */}
+                <PDFExport 
+                  inputs={inputs}
+                  scenarios={scenarios}
+                  onCopySummary={copySummary}
+                  onEmailBreakdown={emailBreakdown}
+                />
+              </motion.div>
+            )}
+
+            {/* Test Runner - Hidden by default */}
+            {showTestRunner && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <TestRunner />
+              </motion.div>
+            )}
+          </main>
+
+          {/* Compliance Banner */}
+          <ComplianceBanner />
+
+          {/* Sources Modal */}
+          <SourcesModal open={showSources} onOpenChange={setShowSources} />
+        </div>
+      </TooltipProvider>
+    </ErrorBoundary>
   )
 }
 
