@@ -336,12 +336,19 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     <Select 
                       value={selectedIndustry} 
                       onValueChange={(value) => {
+                        console.log('Industry selected:', value)
                         setSelectedIndustry(value)
-                        applyPresets(INDUSTRY_PRESETS[value as keyof typeof INDUSTRY_PRESETS])
+                        const presets = INDUSTRY_PRESETS[value as keyof typeof INDUSTRY_PRESETS]
+                        console.log('Applying presets:', presets)
+                        if (presets) {
+                          applyPresets(presets)
+                        }
                       }}
                     >
                       <SelectTrigger id="industryPreset">
-                        <SelectValue placeholder="Select industry..." />
+                        <SelectValue>
+                          {selectedIndustry ? selectedIndustry.charAt(0).toUpperCase() + selectedIndustry.slice(1) : "Select industry..."}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="manufacturing">Manufacturing</SelectItem>
@@ -361,12 +368,19 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     <Select 
                       value={selectedCompanySize} 
                       onValueChange={(value) => {
+                        console.log('Company size selected:', value)
                         setSelectedCompanySize(value)
-                        applyPresets(COMPANY_SIZE_PRESETS[value as keyof typeof COMPANY_SIZE_PRESETS])
+                        const presets = COMPANY_SIZE_PRESETS[value as keyof typeof COMPANY_SIZE_PRESETS]
+                        console.log('Applying presets:', presets)
+                        if (presets) {
+                          applyPresets(presets)
+                        }
                       }}
                     >
                       <SelectTrigger id="companySize">
-                        <SelectValue placeholder="Select size..." />
+                        <SelectValue>
+                          {selectedCompanySize ? selectedCompanySize.charAt(0).toUpperCase() + selectedCompanySize.slice(1) : "Select size..."}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="small">Small (1-50)</SelectItem>
@@ -385,12 +399,19 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     <Select 
                       value={selectedApproach} 
                       onValueChange={(value) => {
+                        console.log('Approach selected:', value)
                         setSelectedApproach(value)
-                        applyPresets(CALCULATION_APPROACH_PRESETS[value as keyof typeof CALCULATION_APPROACH_PRESETS])
+                        const presets = CALCULATION_APPROACH_PRESETS[value as keyof typeof CALCULATION_APPROACH_PRESETS]
+                        console.log('Applying presets:', presets)
+                        if (presets) {
+                          applyPresets(presets)
+                        }
                       }}
                     >
                       <SelectTrigger id="calculationApproach">
-                        <SelectValue placeholder="Select approach..." />
+                        <SelectValue>
+                          {selectedApproach ? selectedApproach.charAt(0).toUpperCase() + selectedApproach.slice(1) : "Select approach..."}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="conservative">Conservative</SelectItem>
@@ -403,6 +424,18 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     </p>
                   </div>
                 </div>
+
+                {/* Debug Info */}
+                {(selectedIndustry || selectedCompanySize || selectedApproach) && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="text-sm font-medium text-blue-900 mb-2">Current Preset Selections:</h4>
+                    <div className="text-xs text-blue-700 space-y-1">
+                      {selectedIndustry && <div>Industry: {selectedIndustry}</div>}
+                      {selectedCompanySize && <div>Company Size: {selectedCompanySize}</div>}
+                      {selectedApproach && <div>Approach: {selectedApproach}</div>}
+                    </div>
+                  </div>
+                )}
 
                 {/* Advanced Input Fields */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-lg">
@@ -539,25 +572,25 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
 const INDUSTRY_PRESETS = {
   manufacturing: {
     baselineAbsenceRate: 2.8,
-    msdPrevalence: 0.25,
+    msdPrevalence: 25, // Changed from 0.25 to 25 (percentage)
     costPerAbsenceDay: 300,
     costPerClinicalIntervention: 1500
   },
   construction: {
     baselineAbsenceRate: 3.2,
-    msdPrevalence: 0.30,
+    msdPrevalence: 30, // Changed from 0.30 to 30 (percentage)
     costPerAbsenceDay: 350,
     costPerClinicalIntervention: 2000
   },
   healthcare: {
     baselineAbsenceRate: 2.1,
-    msdPrevalence: 0.20,
+    msdPrevalence: 20, // Changed from 0.20 to 20 (percentage)
     costPerAbsenceDay: 250,
     costPerClinicalIntervention: 1200
   },
   office: {
     baselineAbsenceRate: 1.8,
-    msdPrevalence: 0.15,
+    msdPrevalence: 15, // Changed from 0.15 to 15 (percentage)
     costPerAbsenceDay: 200,
     costPerClinicalIntervention: 800
   }
@@ -565,36 +598,36 @@ const INDUSTRY_PRESETS = {
 
 const COMPANY_SIZE_PRESETS = {
   small: {
-    reductionInMsdAbsence: 0.20,
-    reductionInClinicalInterventions: 0.30,
-    adminOnCostPercentage: 0.20
+    reductionInMsdAbsence: 20, // Changed from 0.20 to 20 (percentage)
+    reductionInClinicalInterventions: 30, // Changed from 0.30 to 30 (percentage)
+    adminOnCostPercentage: 20 // Changed from 0.20 to 20 (percentage)
   },
   medium: {
-    reductionInMsdAbsence: 0.25,
-    reductionInClinicalInterventions: 0.35,
-    adminOnCostPercentage: 0.25
+    reductionInMsdAbsence: 25, // Changed from 0.25 to 25 (percentage)
+    reductionInClinicalInterventions: 35, // Changed from 0.35 to 35 (percentage)
+    adminOnCostPercentage: 25 // Changed from 0.25 to 25 (percentage)
   },
   large: {
-    reductionInMsdAbsence: 0.30,
-    reductionInClinicalInterventions: 0.40,
-    adminOnCostPercentage: 0.30
+    reductionInMsdAbsence: 30, // Changed from 0.30 to 30 (percentage)
+    reductionInClinicalInterventions: 40, // Changed from 0.40 to 40 (percentage)
+    adminOnCostPercentage: 30 // Changed from 0.30 to 30 (percentage)
   }
 }
 
 const CALCULATION_APPROACH_PRESETS = {
   conservative: {
     workDaysPerYear: 220,
-    absenceDueToMsdPercentage: 0.15,
-    msdNeedingInterventionPercentage: 0.20
+    absenceDueToMsdPercentage: 15, // Changed from 0.15 to 15 (percentage)
+    msdNeedingInterventionPercentage: 20 // Changed from 0.20 to 20 (percentage)
   },
   moderate: {
     workDaysPerYear: 230,
-    absenceDueToMsdPercentage: 0.20,
-    msdNeedingInterventionPercentage: 0.25
+    absenceDueToMsdPercentage: 20, // Changed from 0.20 to 20 (percentage)
+    msdNeedingInterventionPercentage: 25 // Changed from 0.25 to 25 (percentage)
   },
   optimistic: {
     workDaysPerYear: 240,
-    absenceDueToMsdPercentage: 0.25,
-    msdNeedingInterventionPercentage: 0.30
+    absenceDueToMsdPercentage: 25, // Changed from 0.25 to 25 (percentage)
+    msdNeedingInterventionPercentage: 30 // Changed from 0.30 to 30 (percentage)
   }
 }
