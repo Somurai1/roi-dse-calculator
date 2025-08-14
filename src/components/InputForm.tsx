@@ -18,6 +18,9 @@ interface InputFormProps {
 export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, validationErrors }) => {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [showHelp, setShowHelp] = useState(false)
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('')
+  const [selectedCompanySize, setSelectedCompanySize] = useState<string>('')
+  const [selectedApproach, setSelectedApproach] = useState<string>('')
 
   // Validate field on change
   const handleFieldChange = (field: keyof ROICalculationInputs, value: string) => {
@@ -38,6 +41,13 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
       })
     }
     onInputChange(field, value)
+  }
+
+  // Apply presets and update form
+  const applyPresets = (presets: Record<string, number>) => {
+    Object.entries(presets).forEach(([field, value]) => {
+      handleFieldChange(field as keyof ROICalculationInputs, value.toString())
+    })
   }
 
   // Get field constraints for help text
@@ -317,20 +327,17 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     </svg>
                   </span>
                 </summary>
+                
+                {/* Preset Selectors */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-lg">
                   {/* Industry Preset */}
                   <div className="space-y-2">
                     <Label htmlFor="industryPreset">Industry Type</Label>
                     <Select 
-                      value="" 
+                      value={selectedIndustry} 
                       onValueChange={(value) => {
-                        // Apply industry presets
-                        const presets = INDUSTRY_PRESETS[value as keyof typeof INDUSTRY_PRESETS]
-                        if (presets) {
-                          Object.entries(presets).forEach(([field, value]) => {
-                            onInputChange(field as keyof ROICalculationInputs, value.toString())
-                          })
-                        }
+                        setSelectedIndustry(value)
+                        applyPresets(INDUSTRY_PRESETS[value as keyof typeof INDUSTRY_PRESETS])
                       }}
                     >
                       <SelectTrigger id="industryPreset">
@@ -352,15 +359,10 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                   <div className="space-y-2">
                     <Label htmlFor="companySize">Company Size</Label>
                     <Select 
-                      value="" 
+                      value={selectedCompanySize} 
                       onValueChange={(value) => {
-                        // Apply company size presets
-                        const presets = COMPANY_SIZE_PRESETS[value as keyof typeof COMPANY_SIZE_PRESETS]
-                        if (presets) {
-                          Object.entries(presets).forEach(([field, value]) => {
-                            onInputChange(field as keyof ROICalculationInputs, value.toString())
-                          })
-                        }
+                        setSelectedCompanySize(value)
+                        applyPresets(COMPANY_SIZE_PRESETS[value as keyof typeof COMPANY_SIZE_PRESETS])
                       }}
                     >
                       <SelectTrigger id="companySize">
@@ -381,15 +383,10 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                   <div className="space-y-2">
                     <Label htmlFor="calculationApproach">Calculation Approach</Label>
                     <Select 
-                      value="" 
+                      value={selectedApproach} 
                       onValueChange={(value) => {
-                        // Apply calculation approach presets
-                        const presets = CALCULATION_APPROACH_PRESETS[value as keyof typeof CALCULATION_APPROACH_PRESETS]
-                        if (presets) {
-                          Object.entries(presets).forEach(([field, value]) => {
-                            onInputChange(field as keyof ROICalculationInputs, value.toString())
-                          })
-                        }
+                        setSelectedApproach(value)
+                        applyPresets(CALCULATION_APPROACH_PRESETS[value as keyof typeof CALCULATION_APPROACH_PRESETS])
                       }}
                     >
                       <SelectTrigger id="calculationApproach">
@@ -404,6 +401,117 @@ export const InputForm: React.FC<InputFormProps> = ({ inputs, onInputChange, val
                     <p className="text-xs text-muted-foreground">
                       Sets work days and MSD percentages
                     </p>
+                  </div>
+                </div>
+
+                {/* Advanced Input Fields */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-lg">
+                  {/* Baseline Absence Rate */}
+                  <div className="space-y-2">
+                    <Label htmlFor="baselineAbsenceRate">Baseline Absence Rate (%)</Label>
+                    <Input
+                      id="baselineAbsenceRate"
+                      type="number"
+                      value={inputs.baselineAbsenceRate}
+                      onChange={(e) => handleFieldChange('baselineAbsenceRate', e.target.value)}
+                      min={getFieldConstraints('baselineAbsenceRate')?.min}
+                      max={getFieldConstraints('baselineAbsenceRate')?.max}
+                      step={getFieldConstraints('baselineAbsenceRate')?.step}
+                      className={fieldErrors.baselineAbsenceRate ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.baselineAbsenceRate && (
+                      <p className="text-sm text-red-500">{fieldErrors.baselineAbsenceRate}</p>
+                    )}
+                  </div>
+
+                  {/* Cost Per Absence Day */}
+                  <div className="space-y-2">
+                    <Label htmlFor="costPerAbsenceDay">Cost Per Absence Day ({CURRENCY_SYMBOLS[inputs.currency]})</Label>
+                    <Input
+                      id="costPerAbsenceDay"
+                      type="number"
+                      value={inputs.costPerAbsenceDay}
+                      onChange={(e) => handleFieldChange('costPerAbsenceDay', e.target.value)}
+                      min={getFieldConstraints('costPerAbsenceDay')?.min}
+                      max={getFieldConstraints('costPerAbsenceDay')?.max}
+                      step={getFieldConstraints('costPerAbsenceDay')?.step}
+                      className={fieldErrors.costPerAbsenceDay ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.costPerAbsenceDay && (
+                      <p className="text-sm text-red-500">{fieldErrors.costPerAbsenceDay}</p>
+                    )}
+                  </div>
+
+                  {/* MSD Prevalence */}
+                  <div className="space-y-2">
+                    <Label htmlFor="msdPrevalence">MSD Prevalence (%)</Label>
+                    <Input
+                      id="msdPrevalence"
+                      type="number"
+                      value={inputs.msdPrevalence}
+                      onChange={(e) => handleFieldChange('msdPrevalence', e.target.value)}
+                      min={getFieldConstraints('msdPrevalence')?.min}
+                      max={getFieldConstraints('msdPrevalence')?.max}
+                      step={getFieldConstraints('msdPrevalence')?.step}
+                      className={fieldErrors.msdPrevalence ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.msdPrevalence && (
+                      <p className="text-sm text-red-500">{fieldErrors.msdPrevalence}</p>
+                    )}
+                  </div>
+
+                  {/* Reduction in MSD Absence */}
+                  <div className="space-y-2">
+                    <Label htmlFor="reductionInMsdAbsence">MSD Absence Reduction (%)</Label>
+                    <Input
+                      id="reductionInMsdAbsence"
+                      type="number"
+                      value={inputs.reductionInMsdAbsence}
+                      onChange={(e) => handleFieldChange('reductionInMsdAbsence', e.target.value)}
+                      min={getFieldConstraints('reductionInMsdAbsence')?.min}
+                      max={getFieldConstraints('reductionInMsdAbsence')?.max}
+                      step={getFieldConstraints('reductionInMsdAbsence')?.step}
+                      className={fieldErrors.reductionInMsdAbsence ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.reductionInMsdAbsence && (
+                      <p className="text-sm text-red-500">{fieldErrors.reductionInMsdAbsence}</p>
+                    )}
+                  </div>
+
+                  {/* Reduction in Clinical Interventions */}
+                  <div className="space-y-2">
+                    <Label htmlFor="reductionInClinicalInterventions">Clinical Intervention Reduction (%)</Label>
+                    <Input
+                      id="reductionInClinicalInterventions"
+                      type="number"
+                      value={inputs.reductionInClinicalInterventions}
+                      onChange={(e) => handleFieldChange('reductionInClinicalInterventions', e.target.value)}
+                      min={getFieldConstraints('reductionInClinicalInterventions')?.min}
+                      max={getFieldConstraints('reductionInClinicalInterventions')?.max}
+                      step={getFieldConstraints('reductionInClinicalInterventions')?.step}
+                      className={fieldErrors.reductionInClinicalInterventions ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.reductionInClinicalInterventions && (
+                      <p className="text-sm text-red-500">{fieldErrors.reductionInClinicalInterventions}</p>
+                    )}
+                  </div>
+
+                  {/* Cost Per Clinical Intervention */}
+                  <div className="space-y-2">
+                    <Label htmlFor="costPerClinicalIntervention">Cost Per Clinical Intervention ({CURRENCY_SYMBOLS[inputs.currency]})</Label>
+                    <Input
+                      id="costPerClinicalIntervention"
+                      type="number"
+                      value={inputs.costPerClinicalIntervention}
+                      onChange={(e) => handleFieldChange('costPerClinicalIntervention', e.target.value)}
+                      min={getFieldConstraints('costPerClinicalIntervention')?.min}
+                      max={getFieldConstraints('costPerClinicalIntervention')?.max}
+                      step={getFieldConstraints('costPerClinicalIntervention')?.step}
+                      className={fieldErrors.costPerClinicalIntervention ? 'border-red-500' : ''}
+                    />
+                    {fieldErrors.costPerClinicalIntervention && (
+                      <p className="text-sm text-red-500">{fieldErrors.costPerClinicalIntervention}</p>
+                    )}
                   </div>
                 </div>
               </details>
